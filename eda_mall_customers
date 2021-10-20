@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct 20 21:35:24 2021
+
+@author: ayeshauzair
+"""
+
+# Apply the pandas methods and functions along with profiling and interpret your findings from given dataset.
+
+import pandas as pd
+import pandas_profiling as pp
+from matplotlib import pyplot as plt
+import seaborn as sns
+import plotly_express as px
+
+
+df = pd.read_csv("/Users/ayeshauzair/PycharmProjects/ML_AI_Bootcamp/Assignment4/Mall_Customers.csv") #import dataset into environment
+
+print("\n\n--------------------------------------------------------------------------")
+print("Top 10 rows ")
+print("--------------------------------------------------------------------------\n")
+print(df.head(5)) 
+
+
+print("\n\n--------------------------------------------------------------------------")
+print("Bottom 10 rows ")
+print("--------------------------------------------------------------------------\n")
+print(df.tail(5)) 
+
+
+print("\n\n--------------------------------------------------------------------------")
+print("DataFrame Info ")
+print("--------------------------------------------------------------------------\n")
+print(df.info()) 
+
+
+print("\n\n--------------------------------------------------------------------------")
+print("Column Names ")
+print("--------------------------------------------------------------------------\n")
+print(df.columns) 
+print("\n\n")
+print("Note: Since the Gender column name is mis-spelled, we rename it.")
+print("\n\n")
+df = df.rename(columns = {'Genre':'Gender'})
+print("\n\nCorrected Column Name Check")
+print(df.columns)
+
+
+print("\n\n--------------------------------------------------------------------------")
+print("DataFrame Description ")
+print("--------------------------------------------------------------------------\n")
+print(df.describe()) 
+print("\n\n")
+print("Statistical evaluation of all numerical columns present in the dataframe.")
+print("\n\n")
+
+print("\n\n--------------------------------------------------------------------------")
+print("Null Values ")
+print("--------------------------------------------------------------------------\n")
+print(df.isnull().sum()) 
+
+
+print("\n\n--------------------------------------------------------------------------")
+print("Statistical Analysis: Mean Values of all columns ")
+print("--------------------------------------------------------------------------\n")
+mean_1 = df['Annual Income (k$)'].mean()
+mean_2 = df['Spending Score (1-100)'].mean()
+mean_3 = df['Age'].mean()
+print("Mean Annual Income (k$) : ", mean_1)
+print("Mean Spending Score (1-100) : ", mean_2)
+print("Mean Age =", mean_3)
+print("\n\n")
+print("The mean values match the statistical evaluation given by the .describe() command.")
+print("")
+print("\n\n")
+
+
+print("\n\n--------------------------------------------------------------------------")
+print("Statistical Analysis: Median Values of all columns ")
+print("--------------------------------------------------------------------------\n")
+median_1 = df['Annual Income (k$)'].median()
+median_2 = df['Spending Score (1-100)'].median()
+median_3 = df['Age'].median()
+print("Median Annual Income (k$) : ", median_1)
+print("Median Spending Score (1-100) : ", median_2)
+print("Median Age =", median_3)
+
+
+print("\n\n--------------------------------------------------------------------------")
+print("Statistical Analysis: Mode Values of all columns ")
+print("--------------------------------------------------------------------------\n")
+mode_1 = df['Annual Income (k$)'].mode().tolist()
+mode_2 = df['Spending Score (1-100)'].mode().tolist()
+mode_3 = df['Age'].mode().tolist()
+print("Mode Annual Income (k$) : ", mode_1)
+print("Mode Spending Score (1-100) : ", mode_2)
+print ("Mode Age =", mode_3)
+
+
+
+print("\n\n--------------------------------------------------------------------------")
+print("Statistical Analysis: Group by Categorical Column i.e. Gender ")
+print("--------------------------------------------------------------------------\n")
+mean_income_gender = df.groupby("Gender")["Annual Income (k$)"].mean() 
+print("Mean Income by Gender : ", mean_income_gender)
+print("\n\n")
+mean_spending_gender = df.groupby("Gender")["Spending Score (1-100)"].mean() 
+print("Mean Spending by Gender : ", mean_spending_gender)
+print("\n\n")
+print("Male gender generally earns more income than Female gender. However, female gender has a higher spending score, indicating that female gender tends to spend more than male gender.")
+
+
+print("\n\n--------------------------------------------------------------------------")
+print("Creating a New Categorical Column (Age Group) and analysing numerical columns ")
+print("--------------------------------------------------------------------------\n")
+
+df.loc[df["Age"]<20,"Age Group"] = "under 20"
+df.loc[(df["Age"]<30)&(df["Age"]>19),"Age Group"] = "20 - 29"
+df.loc[(df["Age"]<40)&(df["Age"]>29),"Age Group"] = "30 - 39"
+df.loc[(df["Age"]<50)&(df["Age"]>39),"Age Group"] = "40 - 49"
+df.loc[(df["Age"]<60)&(df["Age"]>49),"Age Group"] = "50 - 59"
+df.loc[df["Age"]>59,"Age Group"] = "over 60"
+
+mean_agec = pd.DataFrame(df.groupby("Age Group")["Annual Income (k$)"].mean())
+print(mean_agec)
+print("\n\n")
+mean_spend = pd.DataFrame(df.groupby("Age Group")['Spending Score (1-100)'].mean())
+print(mean_spend)
+print("\n\n")
+df["Score per $ income"] = df["Spending Score (1-100)"] / df["Annual Income (k$)"]
+mean_score_income = df["Score per $ income"].mean()
+print ("Spending score per k$ income is ",mean_score_income)
+print("\n\n")
+
+
+print("\n\n--------------------------------------------------------------------------")
+print("Final Analysis/Interpretations ")
+print("--------------------------------------------------------------------------\n")
+
+
+# PLOTS
+
+figure = px.scatter(df,x="Spending Score (1-100)", y= "Annual Income (k$)", color="Gender")
+figure.show()
+
+figure2 = px.scatter(df,x="Age", y= "Annual Income (k$)", color="Gender")
+figure2.show()
+
+figure3 = px.scatter(df,x="Age", y= "Spending Score (1-100)", color="Gender")
+figure3.show()
+
+# Pandas Profiling
+
+profile = pp.ProfileReport(df)
+profile.to_file("Summaryreport.html")
+
+
